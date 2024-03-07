@@ -1,0 +1,5 @@
+asset/img/*.jpg
+asset/img/*.png
+asset/video/*.mp4
+asset/yolo/*.pt
+asset/yolo/*.engine
