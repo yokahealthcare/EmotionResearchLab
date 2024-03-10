@@ -1,4 +1,5 @@
 import time
+from datetime import timedelta
 
 import cv2
 import imutils
@@ -32,17 +33,31 @@ if __name__ == '__main__':
         head_xyxyns = boxes.xyxyn.clone()  # Separate shared memory from orginal
         for head in head_xyxyns:
             x1, y1, x2, y2 = head
+            y2 *= 0.7  # Define how big the height of cropped head
+
             x1 = int(x1 * frame_width)
             y1 = int(y1 * frame_height)
             x2 = int(x2 * frame_width)
             y2 = int(y2 * frame_height)
 
             # Draw bounding box of cropped head
-            cv2.rectangle(original_frame, (x1, y1), (x2, y2), (255, 255, 0), 2)
+            cv2.rectangle(original_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+            # Emotion Detection
+            cropped_head = original_frame[y1:y2, x1:x2]
+            # cropped_head = emot.preprocessing(cropped_head)
+            #
+            # emot.run(cropped_head)
+            # emotion = emot.get_emotion()
+            # cv2.putText(original_frame, emotion, (x1 + 10, y2 - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2)
+
+        end = time.perf_counter()
+        print(f"Inference time for facial attribute analysis took {timedelta(seconds=(end - start))} \n")
 
         # Plot
         cv2.imshow("webcam", original_frame)
         # Wait for a key event and get the ASCII code
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
     cv2.destroyAllWindows()

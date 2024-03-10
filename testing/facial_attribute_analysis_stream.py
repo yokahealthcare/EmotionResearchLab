@@ -46,7 +46,7 @@ from deepface import DeepFace
 
 
 if __name__ == '__main__':
-    for emotion in DeepFace.stream(source="../asset/video/gfriend.mp4", time_threshold=1, frame_threshold=10):
+    for emotion in DeepFace.stream(source="../asset/video/gfriend.mp4", time_threshold=1, frame_threshold=20):
         print(emotion)
 
     # yolo = YoloPersonDetector("../asset/yolo/yolov8l-face.pt")
