@@ -44,7 +44,13 @@ if __name__ == '__main__':
     yolo = YoloPersonDetector("asset/yolo/yolov8m.pt")
     emot = EmotionDetector()
 
+    num_frame = 0
     for result in yolo.run("asset/video/rollin720.mp4"):
+        if num_frame < 15:
+            num_frame += 1
+            continue
+        num_frame = 0
+
         start = time.perf_counter()
 
         original_frame = result.orig_img
@@ -73,34 +79,21 @@ if __name__ == '__main__':
             # Emotion Detection
             cropped_head = original_frame[y1:y2, x1:x2]
             cropped_head = emot.preprocessing(cropped_head)
+
             emot.run(cropped_head)
             emotion = emot.get_emotion()
-
             cv2.putText(original_frame, emotion, (x1+10, y2-20), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 2)
 
         end = time.perf_counter()
         print(f"Inference time for facial attribute analysis took {timedelta(seconds=(end - start))} \n")
+
         # Plot
         cv2.imshow("webcam", original_frame)
-
         # Wait for a key event and get the ASCII code
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
     cv2.destroyAllWindows()
-
-# # Load a model
-# model = YOLO('yolov8x.pt')  # load a pretrained model (recommended for training)
-# model.predict()
-#
-# pic1 = "asset/img/aerith#1.jpg"
-# pic2 = "asset/img/aerith#2.jpg"
-
-# demographies = DeepFace.analyze(img_path=pic1, detector_backend=backends[3])
-# print(demographies)
-#
-# objs = DeepFace.analyze(img_path=pic1, actions=['age', 'gender', 'race', 'emotion'])
-# print(objs)
 
 """
 
