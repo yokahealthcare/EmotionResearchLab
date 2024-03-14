@@ -1,24 +1,14 @@
 import os
 import time
-from datetime import timedelta
 
 import cv2
 import imutils
-import numpy as np
 import pandas as pd
 from deepface import DeepFace
 from deepface.commons.logger import Logger
 from ultralytics import YOLO
 
-logger = Logger(module="commons.realtime")
-
-# dependency configuration
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
-
-
-class EmotionDetector:
-    def __init__(self):
-        pass
+from emotion_detector import EmotionDetector
 
 
 class YoloFaceDetector:
@@ -30,14 +20,12 @@ class YoloFaceDetector:
 
 
 if __name__ == '__main__':
+    emot = EmotionDetector()
     yolo = YoloFaceDetector("asset/yolo/yolov8l-face.pt")
 
     # Emotion detector
     # Global variables
     text_color = (255, 255, 255)
-
-    DeepFace.build_model(model_name="Emotion")
-    logger.info("Emotion model is just built")
 
     # Settings
     time_threshold = 1
@@ -125,31 +113,15 @@ if __name__ == '__main__':
                         custom_face = base_img[y: y + h, x: x + w]
 
                         # facial attribute analysis
-                        demographies = DeepFace.analyze(
-                            img_path=custom_face,
-                            detector_backend="skip",
-                            enforce_detection=False,
-                            silent=True,
-                            actions=["emotion"]
-                        )
+                        emot.detect(custom_face)
 
-                        if len(demographies) > 0:
-                            # directly access 1st face cos img is extracted already
-                            demography = demographies[0]
-                            print(demography)
-
-                            emotion = demography["emotion"]
-                            emotion_df = pd.DataFrame(
-                                emotion.items(), columns=["emotion", "score"]
-                            )
-                            emotion_df = emotion_df.sort_values(
-                                by=["score"], ascending=False
-                            ).reset_index(drop=True)
+                        if emot.can_detect():
+                            emotion_df = emot.get_emotion_df()
 
                             emo, score = emotion_df.iloc[0]
                             cv2.putText(
-                                freeze_img, emo, (x+w, y+h-10),
-                                cv2.FONT_HERSHEY_SIMPLEX,0.8,(255, 255, 255),2
+                                freeze_img, emo, (x + w, y + h - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2
                             )
 
                             # background of mood box
@@ -234,7 +206,7 @@ if __name__ == '__main__':
                 cv2.rectangle(freeze_img, (10, 10), (90, 50), (67, 67, 67), -10)
                 cv2.putText(
                     freeze_img, str(time_left), (40, 40), cv2.FONT_HERSHEY_SIMPLEX,
-                    1,(255, 255, 255),1
+                    1, (255, 255, 255), 1
                 )
 
                 cv2.imshow("img", freeze_img)
