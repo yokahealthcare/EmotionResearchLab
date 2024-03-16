@@ -115,7 +115,7 @@ if __name__ == '__main__':
                         # facial attribute analysis
                         emot.detect(custom_face)
 
-                        if emot.can_detect():
+                        if emot.is_face_detected():
                             emotion_df = emot.get_emotion_df()
 
                             emo, score = emotion_df.iloc[0]
