@@ -7,7 +7,7 @@ from keras.preprocessing import image
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-cap = cv2.VideoCapture("../asset/video/airport#2720.mp4")
+cap = cv2.VideoCapture("../asset/video/gfriend.mp4")
 # -----------------------------
 # face expression recognizer initialization
 from keras.models import model_from_json

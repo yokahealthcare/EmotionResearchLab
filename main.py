@@ -113,10 +113,10 @@ if __name__ == '__main__':
                         custom_face = base_img[y: y + h, x: x + w]
 
                         # facial attribute analysis
-                        emot.detect(custom_face)
+                        emotion, dominant_emotion = emot.run(custom_face)
 
                         if emot.is_face_detected():
-                            emotion_df = emot.get_emotion_df()
+                            emotion_df = emot.get_emotion_result_df()
 
                             emo, score = emotion_df.iloc[0]
                             cv2.putText(
