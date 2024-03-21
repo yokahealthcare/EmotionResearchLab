@@ -120,36 +120,48 @@ if __name__ == '__main__':
         def run(self, source):
             return self.model.predict(source)[0]
 
+
     # Settings
     yolo = YoloFaceDetector("asset/yolo/yolov8l-face.pt")
     emot = EmotionDetector()
 
-    cap = cv2.VideoCapture("asset/video/gfriend.mp4")
-    while True:
-        has_frame, img = cap.read()
-        if not has_frame:
-            break
+    face_cascade = cv2.CascadeClassifier('testing/haarcascade_frontalface_default.xml')
+    img = cv2.imread("asset/img/face#1.jpg")
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+    for (x, y, w, h) in faces:
+        cropped = img[int(y):int(y + h), int(x):int(x + w)]
+        emotion, dominant_emotion = emot.run(cropped)
+        cv2.putText(cropped, f"{dominant_emotion}", (0, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+        img[int(y):int(y + h), int(x):int(x + w)] = cropped
 
-        result = yolo.run(img)
-        boxes = result.boxes.xyxy.clone().tolist()
-        for box in boxes:
-            x1, y1, x2, y2 = box
-            x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
-            cv2.rectangle(img, (x1, y1), (x2, y2), (255, 255, 255), 1)
-            cropped = img[y1:y2, x1:x2]
+    # cap = cv2.VideoCapture("asset/video/gfriend.mp4")
+    # while True:
+    #     has_frame, img = cap.read()
+    #     if not has_frame:
+    #         break
+    #
+    #     result = yolo.run(img)
+    #     boxes = result.boxes.xyxy.clone().tolist()
+    #     for box in boxes:
+    #         x1, y1, x2, y2 = box
+    #         x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+    #         cv2.rectangle(img, (x1, y1), (x2, y2), (255, 255, 255), 1)
+    #         cropped = img[y1:y2, x1:x2]
+    #
+    #         # ---------------- THIS ONE
+    #         emotion, dominant_emotion = emot.run(cropped)
+    #         # ---------------- THIS ONE
+    #
+    #         cv2.putText(cropped, f"{dominant_emotion}", (0, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+    #
+    #         img[y1:y2, x1:x2] = cropped
+    #
 
-            # ---------------- THIS ONE
-            emotion, dominant_emotion = emot.run(cropped)
-            # ---------------- THIS ONE
+    # Display the outputq
+    cv2.imshow('img', img)
+    # if cv2.waitKey(20) & 0xFF == ord("q"):  # press q to quit
+    #     break
 
-            cv2.putText(cropped, f"{dominant_emotion}", (0, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
-
-            img[y1:y2, x1:x2] = cropped
-
-        # Display the outputq
-        cv2.imshow('img', img)
-        if cv2.waitKey(20) & 0xFF == ord("q"):  # press q to quit
-            break
-
-    cap.release()
-    cv2.destroyAllWindows()
+    # cap.release()
+    # cv2.destroyAllWindow()

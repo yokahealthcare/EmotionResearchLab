@@ -31,6 +31,8 @@ if __name__ == '__main__':
     time_threshold = 1
     frame_threshold = 20
 
+    pivot_img_size = 200
+
     # Visualization
     freeze = False
     face_detected = False
@@ -119,85 +121,85 @@ if __name__ == '__main__':
                             emotion_df = emot.get_emotion_result_df()
 
                             emo, score = emotion_df.iloc[0]
-                            cv2.putText(
-                                freeze_img, emo, (x + w, y + h - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2
-                            )
+                            # cv2.putText(
+                            #     freeze_img, emo, (x + w, y + h - 10),
+                            #     cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2
+                            # )
 
                             # background of mood box
 
                             # transparency
-                            # overlay = freeze_img.copy()
-                            # opacity = 0.4
-                            #
-                            # if x + w + pivot_img_size < resolution_x:
-                            #     # right
-                            #     cv2.rectangle(
-                            #         freeze_img, (x + w, y), (x + w + pivot_img_size, y + h), (64, 64, 64), cv2.FILLED
-                            #     )
-                            #     cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
-                            #
-                            # elif x - pivot_img_size > 0:
-                            #     # left
-                            #     cv2.rectangle(
-                            #         freeze_img, (x - pivot_img_size, y), (x, y + h), (64, 64, 64), cv2.FILLED,
-                            #     )
-                            #     cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
-                            #
-                            # for index, instance in emotion_df.iterrows():
-                            #     current_emotion = instance["emotion"]
-                            #     emotion_label = f"{current_emotion} "
-                            #     emotion_score = instance["score"] / 100
-                            #
-                            #     bar_x = 35  # this is the size if an emotion is 100%
-                            #     bar_x = int(bar_x * emotion_score)
-                            #
-                            #     if x + w + pivot_img_size < resolution_x:
-                            #
-                            #         text_location_y = y + 20 + (index + 1) * 20
-                            #         text_location_x = x + w
-                            #
-                            #         if text_location_y < y + h:
-                            #             cv2.putText(
-                            #                 freeze_img, emotion_label, (text_location_x, text_location_y),
-                            #                 cv2.FONT_HERSHEY_SIMPLEX,0.5,(255, 255, 255),1
-                            #             )
-                            #
-                            #             cv2.rectangle(
-                            #                 freeze_img,
-                            #                 (x + w + 70, y + 13 + (index + 1) * 20),
-                            #                 (
-                            #                     x + w + 70 + bar_x,
-                            #                     y + 13 + (index + 1) * 20 + 5,
-                            #                 ),
-                            #                 (255, 255, 255),
-                            #                 cv2.FILLED,
-                            #             )
-                            #
-                            #     elif x - pivot_img_size > 0:
-                            #
-                            #         text_location_y = y + 20 + (index + 1) * 20
-                            #         text_location_x = x - pivot_img_size
-                            #
-                            #         if text_location_y <= y + h:
-                            #             cv2.putText(
-                            #                 freeze_img, emotion_label, (text_location_x, text_location_y),
-                            #                 cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255, 255, 255), 1
-                            #             )
-                            #
-                            #             cv2.rectangle(
-                            #                 freeze_img,
-                            #                 (
-                            #                     x - pivot_img_size + 70,
-                            #                     y + 13 + (index + 1) * 20,
-                            #                 ),
-                            #                 (
-                            #                     x - pivot_img_size + 70 + bar_x,
-                            #                     y + 13 + (index + 1) * 20 + 5,
-                            #                 ),
-                            #                 (255, 255, 255),
-                            #                 cv2.FILLED,
-                            #             )
+                            overlay = freeze_img.copy()
+                            opacity = 0.4
+
+                            if x + w + pivot_img_size < resolution_x:
+                                # right
+                                cv2.rectangle(
+                                    freeze_img, (x + w, y), (x + w + pivot_img_size, y + h), (64, 64, 64), cv2.FILLED
+                                )
+                                cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+
+                            elif x - pivot_img_size > 0:
+                                # left
+                                cv2.rectangle(
+                                    freeze_img, (x - pivot_img_size, y), (x, y + h), (64, 64, 64), cv2.FILLED,
+                                )
+                                cv2.addWeighted(overlay, opacity, freeze_img, 1 - opacity, 0, freeze_img)
+
+                            for index, instance in emotion_df.iterrows():
+                                current_emotion = instance["emotion"]
+                                emotion_label = f"{current_emotion} "
+                                emotion_score = instance["score"] / 100
+
+                                bar_x = 35  # this is the size if an emotion is 100%
+                                bar_x = int(bar_x * emotion_score)
+
+                                if x + w + pivot_img_size < resolution_x:
+
+                                    text_location_y = y + 20 + (index + 1) * 20
+                                    text_location_x = x + w
+
+                                    if text_location_y < y + h:
+                                        cv2.putText(
+                                            freeze_img, emotion_label, (text_location_x, text_location_y),
+                                            cv2.FONT_HERSHEY_SIMPLEX,0.5,(255, 255, 255),1
+                                        )
+
+                                        cv2.rectangle(
+                                            freeze_img,
+                                            (x + w + 70, y + 13 + (index + 1) * 20),
+                                            (
+                                                x + w + 70 + bar_x,
+                                                y + 13 + (index + 1) * 20 + 5,
+                                            ),
+                                            (255, 255, 255),
+                                            cv2.FILLED,
+                                        )
+
+                                elif x - pivot_img_size > 0:
+
+                                    text_location_y = y + 20 + (index + 1) * 20
+                                    text_location_x = x - pivot_img_size
+
+                                    if text_location_y <= y + h:
+                                        cv2.putText(
+                                            freeze_img, emotion_label, (text_location_x, text_location_y),
+                                            cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255, 255, 255), 1
+                                        )
+
+                                        cv2.rectangle(
+                                            freeze_img,
+                                            (
+                                                x - pivot_img_size + 70,
+                                                y + 13 + (index + 1) * 20,
+                                            ),
+                                            (
+                                                x - pivot_img_size + 70 + bar_x,
+                                                y + 13 + (index + 1) * 20 + 5,
+                                            ),
+                                            (255, 255, 255),
+                                            cv2.FILLED,
+                                        )
 
                         tic = time.time()  # in this way, freezed image can show 5 seconds
 
