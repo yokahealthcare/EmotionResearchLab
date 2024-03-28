@@ -21,8 +21,13 @@ class EmotionDetector:
     # ONNX execution engine
     providers = ['CUDAExecutionProvider']
 
-    def __init__(self):
-        self.face_detector = YoloFaceDetector("yolov8n-face.pt")
+    # YOLO model for face detection
+    yolo_face_detection_model = "yolov8n-face.engine"
+
+    def __init__(self, with_face_detector=True):
+        self.with_face_detector = with_face_detector
+        if self.with_face_detector:
+            self.face_detector = YoloFaceDetector(self.yolo_face_detection_model)
 
         self.result = []
         self.result_xyxy = None
@@ -35,13 +40,15 @@ class EmotionDetector:
         self.result_emotion = None
         self.face_detected = False
 
-    def detect_faces(self, cf):
+    def detect_faces(self, cropped_image):
         faces = []
 
-        result = self.face_detector.run(cf)
+        result = self.face_detector.run(cropped_image)
         xyxy = result.boxes.xyxy.clone().tolist()
         for x1, y1, x2, y2 in xyxy:
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
+
+            # Calculating width and height
             x = x1
             y = y1
             w = x2 - x1
@@ -51,10 +58,25 @@ class EmotionDetector:
 
         return faces
 
-    def detect(self, cf):
+    def detect(self, cropped_image):
         self.reset()
-        for (x, y, w, h) in self.detect_faces(cf):
-            detected_face = cf[y:y + h, x:x + w]
+        detected_faces = []
+        detected_faces_xywh = []
+
+        if self.with_face_detector:
+            for (x, y, w, h) in self.detect_faces(cropped_image):
+                cropped_face = cropped_image[y:y + h, x:x + w]
+                detected_faces.append(cropped_face)
+                detected_faces_xywh.append([x, y, w, h])
+        else:
+            detected_faces.append(cropped_image)
+            detected_faces_xywh.append([0, 0, cropped_image.shape[1], cropped_image.shape[0]])
+
+        for detected_face, (x, y, w, h) in zip(detected_faces, detected_faces_xywh):
+            cv2.rectangle(cropped_image, (x, y), (x + w, y + h), (0, 255, 0), 1)
+            cv2.putText(cropped_image, "face detection internal", (x, y + h), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1,
+                        cv2.LINE_AA)
+
             detected_face = cv2.cvtColor(detected_face, cv2.COLOR_BGR2GRAY)
             detected_face = cv2.resize(detected_face, (48, 48))
 
@@ -67,8 +89,7 @@ class EmotionDetector:
                 img_pixels.shape = (1,48,48,1)
             """
 
-            m = rt.InferenceSession("facial_expression_model_weights_48x48x1.onnx",
-                                    providers=self.providers)
+            m = rt.InferenceSession("facial_expression_model_weights_48x48x1.onnx", providers=self.providers)
             onnx_pred = m.run(['dense_3'], {"input": img_pixels})[0][0, :]
 
             emotion = onnx_pred
@@ -94,20 +115,20 @@ class EmotionDetector:
                 }
             })
 
-        if len(self.result) > 0:
-            self.face_detected = True
-            self.result_emotion = self.result[0]["emotion"]
+            if len(self.result) > 0:
+                self.face_detected = True
+                self.result_emotion = self.result[0]["emotion"]
 
-            x = self.result[0]["region"]["x"]
-            y = self.result[0]["region"]["y"]
-            w = self.result[0]["region"]["w"]
-            h = self.result[0]["region"]["h"]
-            self.result_xyxy = [
-                x,
-                y,
-                x + w,
-                y + h
-            ]
+                x = self.result[0]["region"]["x"]
+                y = self.result[0]["region"]["y"]
+                w = self.result[0]["region"]["w"]
+                h = self.result[0]["region"]["h"]
+                self.result_xyxy = [
+                    x,
+                    y,
+                    x + w,
+                    y + h
+                ]
 
     def is_face_detected(self):
         return self.face_detected
@@ -153,34 +174,43 @@ class EmotionDetector:
 # HOW TO RUN
 if __name__ == '__main__':
     # Settings
-    yolo = YoloFaceDetector("yolov8n-face.pt")
-    emot = EmotionDetector()
+    yolo = YoloFaceDetector("yolov8n-face.engine")
+    emot = EmotionDetector(with_face_detector=True)     # If not, then it will use the whole cropped image
 
-    cap = cv2.VideoCapture("sample.mp4")
+    cap = cv2.VideoCapture("../asset/img/face#1.jpg")
     while True:
         has_frame, img = cap.read()
         if not has_frame:
             break
         w, h = img.shape[1], img.shape[0]
 
+        # ---------------- THIS ONE
+        emotion, dominant_emotion = emot.run(img)
+        cv2.putText(img, f"{dominant_emotion}", (0, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        # ---------------- THIS ONE
+
+        # SIMULATION OF CAPTURING HEAD AREA (OPTIONAL)
+        """
         result = yolo.run(img)
         boxes = result.boxes.xyxy.clone().tolist()
         for box in boxes:
             x1, y1, x2, y2 = box
             x1, y1, x2, y2 = int(x1), int(y1), int(x2), int(y2)
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 255, 255), 1)
+            cv2.putText(img, f"yolov8m-face simulation bounding box", (x1, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
             cropped = img[y1:y2, x1:x2]
 
             # ---------------- THIS ONE
             emotion, dominant_emotion = emot.run(cropped)
             # ---------------- THIS ONE
 
-            cv2.putText(cropped, f"{dominant_emotion}", (0, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+            cv2.putText(cropped, f"{dominant_emotion}", (x2, y2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
             img[y1:y2, x1:x2] = cropped
+        """
 
         # Display the output
         cv2.imshow('img', img)
-        if cv2.waitKey(20) & 0xFF == ord("q"):  # press q to quit
+        if cv2.waitKey(0) & 0xFF == ord("q"):  # press q to quit
             break
 
     cap.release()

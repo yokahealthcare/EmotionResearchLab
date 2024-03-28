@@ -1,14 +1,10 @@
-import os
 import time
 
 import cv2
 import imutils
-import pandas as pd
-from deepface import DeepFace
-from deepface.commons.logger import Logger
 from ultralytics import YOLO
 
-from emotion_detector import EmotionDetector
+from emotion_detector.emotion_detector import EmotionDetector
 
 
 class YoloFaceDetector:
