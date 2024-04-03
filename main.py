@@ -17,7 +17,7 @@ class YoloFaceDetector:
 
 if __name__ == '__main__':
     emot = EmotionDetector()
-    yolo = YoloFaceDetector("asset/yolo/yolov8l-face.pt")
+    yolo = YoloFaceDetector("asset/yolo-face/yolov8n-face.engine")
 
     # Emotion detector
     # Global variables

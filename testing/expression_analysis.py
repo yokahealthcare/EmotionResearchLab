@@ -13,7 +13,7 @@ cap = cv2.VideoCapture("../asset/video/gfriend.mp4")
 from keras.models import model_from_json
 
 model = model_from_json(open("facial_expression_model_structure.json", "r").read())
-model.load_weights('facial_expression_model_weights.h5')  # load weights
+model.load_weights('facial_expression_model_weights.h5')  # load weight
 
 # -----------------------------
 

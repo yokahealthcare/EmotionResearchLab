@@ -115,6 +115,11 @@ class EmotionDetector:
                 }
             })
 
+            """
+            In here index 0 mean that we return only the first detection
+            If there is two face detected in single frame
+            Then the 2nd emotion data will be ignored
+            """
             if len(self.result) > 0:
                 self.face_detected = True
                 self.result_emotion = self.result[0]["emotion"]
@@ -177,7 +182,7 @@ if __name__ == '__main__':
     yolo = YoloFaceDetector("yolov8n-face.engine")
     emot = EmotionDetector(with_face_detector=True)     # If not, then it will use the whole cropped image
 
-    cap = cv2.VideoCapture("../asset/img/face#1.jpg")
+    cap = cv2.VideoCapture("../asset/img/face#5.jpg")
     while True:
         has_frame, img = cap.read()
         if not has_frame:
@@ -191,7 +196,7 @@ if __name__ == '__main__':
 
         # SIMULATION OF CAPTURING HEAD AREA (OPTIONAL)
         """
-        result = yolo.run(img)
+        result = yolo-face.run(img)
         boxes = result.boxes.xyxy.clone().tolist()
         for box in boxes:
             x1, y1, x2, y2 = box

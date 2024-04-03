@@ -1,0 +1,18 @@
+{
+  "emotion": {
+    "angry": 0.068385236,
+    "disgust": 0.0000257028,
+    "fear": 0.06472828,
+    "happy": 0.06300656,
+    "sad": 0.21200097,
+    "surprise": 0.007611992,
+    "neutral": 0.5842412
+  },
+  "dominant_emotion": "neutral",
+  "age": 32,
+  "gender": {
+    "female": 0.9999924,
+    "male": 0.000007686561
+  },
+  "dominant_gender": "Female"
+}

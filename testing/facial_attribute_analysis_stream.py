@@ -49,9 +49,9 @@ if __name__ == '__main__':
     for emotion in DeepFace.stream(source="../asset/video/gfriend.mp4", time_threshold=1, frame_threshold=20):
         print(emotion)
 
-    # yolo = YoloPersonDetector("../asset/yolo/yolov8l-face.pt")
+    # yolo-face = YoloPersonDetector("../asset/yolo-face/yolov8l-face.pt")
     #
-    # for result in yolo.run("../asset/video/rollin720.mp4"):
+    # for result in yolo-face.run("../asset/video/rollin720.mp4"):
     #     original_frame = result.orig_img
     #
     #     # Resize

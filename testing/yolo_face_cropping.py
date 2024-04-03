@@ -15,7 +15,7 @@ class YoloPersonDetector:
 
 
 if __name__ == '__main__':
-    yolo = YoloPersonDetector("../asset/yolo/yolov8l-face.pt")
+    yolo = YoloPersonDetector("../asset/yolo-face/yolov8l-face.pt")
 
     for result in yolo.run("../asset/video/rollin720.mp4"):
         start = time.perf_counter()
